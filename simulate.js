@@ -20,6 +20,8 @@ var Member = function(id) {
   this.known = [];
   this.strong = [];
   this.score = 0;
+  this.superscore = 0;
+  this.preferences = [];
 };
 
 var init = function() {
@@ -112,47 +114,134 @@ var tally = function(){
   });
 };
 
+var retally = function() {
+  _(members).each(function(voter){
+    if (voter.score > 0) {
+      _(voter.strong).each(function(target){
+        members[target].superscore += voter.score / g;
+      });
+      _(voter.known).each(function(target){
+        members[target].superscore += voter.score / g;
+      });
+    }
+  });
+  _(members).each(function(member){
+    member.superscore = Math.floor(member.superscore + g * member.score);
+  });
+};
+
+var order = function(idxArr){
+  idxArr.sort(function(a, b){ return members[b].superscore - members[a].superscore; });
+};
+
+var wishlist = function(){
+  _(members).each(function(member){
+    order(member.strong);
+    order(member.known);
+    order(member.neutral);
+    order(member.avoid);
+    order(member.reject);
+    member.preferences = [].concat(member.strong, member.known, member.neutral, member.avoid, member.reject);
+  });
+};
+
 var allocate = function() {
   var assignee;
-  while (selection.length) {
-    assignee = selection.unshift();
+  while (queue.length) {
+    assignee = queue.shift();
     groups.push(assignee);
-    arrange(assignee);
+    accompany(assignee);
   }
 };
 
-var arrange = function(assignee) {
-  while (groups.length && groups.length / g !== 0) {
-
+var accompany = function(assigneeId) {
+  var assignee = members[assigneeId],
+      tuple = recruit(assignee.preferences);
+  if (tuple) {
+    var friendId = tuple[0],
+        inQueuePos = tuple[1];
+    // extract friend from the queue, and add friend to groups
+    groups.push(queue.splice(inQueuePos, 1)[0]);
+    if (groups.length / g !== 0) {
+      accompany(friendId);
+    }
   }
 };
 
-var extract = function(list) {
-  var winner = list[0], max = 0;
-  _(list).each(function(idx){
-
-  });
-
+var recruit = function(list) {
+  // go down the preference list of candidates
+  var friend, foundAt;
+  for (var i = 0; i < list.length; i++) {
+    // check if this candidate is still available
+    friend = list[i];
+    foundAt = queue.indexOf(friend);
+    if (foundAt !== -1) {
+      return [friend, foundAt];
+    }
+  }
 };
 
 init();
 survey();
 tally();
+retally();
+wishlist();
 
 // var scores = [];
 // _(members).each(function(p){
-//   scores.push(p.score);
+//   scores.push(p.superscore);
 // });
+// console.log(scores);
 
 var queue = members.slice();
-queue.sort(function(a,b){ return b.score - a.score; });
+queue.sort(function(a,b){ return b.superscore - a.superscore; });
 queue = _(queue).map(function (member) {
+  // return [member.id, member.score, member.superscore];
   return member.id;
 });
 
+// console.log(queue);
+
 var groups = [];
 
-console.log(queue);
+allocate();
 
+// console.log(groups);
 
+// _(groups).each(function(id) {
+//   console.log(id, members[id].superscore);
+// });
 
+groups = divide(groups, n/g);
+// console.log(groups);
+
+var calculate = function(mateId, team) {
+  var mate = members[mateId];
+  var sScore, kScore, nScore, aScore, rScore;
+  
+
+};
+
+// UTILITY TEST
+_(groups).each(function (team) {
+  console.log("\nTeam: ", team);
+  _(team).each(function(mate){
+    calculate(mate, team);
+  });
+});
+
+// var testee = members[15];
+// _(testee.preferences).each(function (idx){
+//   console.log(members[idx].superscore);
+// });
+
+// imported an array division function
+function divide(a, n) {
+  var len = a.length,out = [], i = 0;
+  while (i < len) {
+      var size = Math.ceil((len - i) / n--);
+      out.push(a.slice(i, i + size));
+      i += size;
+  }
+  return out;
+}

@@ -1,0 +1,59 @@
+Team:  [ 29, 13, 17, 0 ]
+Member: 29  1 1 1  
+Member: 13  1 1 1  
+Member: 17  2 0 1  
+Member: 0   2 0 1  
+
+Team:  [ 21, 27, 24, 11 ]
+Member: 21  1 1 1  
+Member: 27  1 1 1  
+Member: 24  0 1 2  
+Member: 11  0 0 3  
+
+Team:  [ 10, 23, 16, 18 ]
+Member: 10  1 0 2  
+Member: 23  2 1 0  
+Member: 16  1 0 2  
+Member: 18  0 1 2  
+
+Team:  [ 15, 22, 2, 38 ]
+Member: 15  1 0 2  
+Member: 22  2 0 1  
+Member: 2   2 0 1  
+Member: 38  1 1 1  
+
+Team:  [ 37, 35, 32, 33 ]
+Member: 37  1 0 2  
+Member: 35  1 2 0  
+Member: 32  2 0 1  
+Member: 33  0 0 3  
+
+Team:  [ 7, 36, 30, 34 ]
+Member: 7   0 1 2  
+Member: 36  2 1 0  
+Member: 30  0 0 3  
+Member: 34  0 1 2  
+
+Team:  [ 28, 12, 19, 9 ]
+Member: 28  1 0 2  
+Member: 12  0 1 2  
+Member: 19  0 1 2  
+Member: 9   0 1 2  
+
+Team:  [ 14, 20, 6, 4 ]
+Member: 14  0 1 2  
+Member: 20  0 1 2  
+Member: 6   1 1 1  
+Member: 4   0 0 3  
+
+Team:  [ 25, 31, 8, 3 ]
+Member: 25  0 2 1  
+Member: 31  0 1 2  
+Member: 8   0 1 2  
+Member: 3   0 0 3  
+
+Team:  [ 5, 26, 1, 39 ]
+Member: 5   0 0 3  
+Member: 26  0 0 3  
+Member: 1   0 2 1  
+Member: 39  0 0 3 

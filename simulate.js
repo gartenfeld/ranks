@@ -212,23 +212,94 @@ allocate();
 //   console.log(id, members[id].superscore);
 // });
 
-groups = divide(groups, n/g);
-// console.log(groups);
+var testGrouping = function(teams) {
+  _(teams).each(function(team){
+    if (testing) {
+      testTeam(team);
+    }
+  });
+};
 
-var calculate = function(mateId, team) {
+var testTeam = function(team) {
+  if (print) {
+    console.log("\nTeam: ", team);
+  }
+  _(team).each(function (mate){
+    if (testing) {
+      testMember(mate, team);
+    }
+  });
+};
+
+var testMember = function(mateId, team) {
   var mate = members[mateId];
-  var sScore, kScore, nScore, aScore, rScore;
-  
+  var sScore = 0, kScore = 0, nScore = 0, aScore = '', rScore = '';
+  var util;
+  _(mate.strong).each(function (target){
+    if (team.indexOf(target) !== -1) { sScore += 1; }
+  });
+  _(mate.known).each(function (target){
+    if (team.indexOf(target) !== -1) { kScore += 1; }
+  });
+  _(mate.neutral).each(function (target){
+    if (team.indexOf(target) !== -1) { nScore += 1; }
+  });
+  _(mate.avoid).each(function (target){
+    if (team.indexOf(target) !== -1) { aScore += '*'; }
+  });
+  _(mate.reject).each(function (target){
+    if (team.indexOf(target) !== -1) { rScore += 'x'; }
+  });
+
+  if (print) {
+    // util = sScore * 5 +
+    //        kScore * 3 +
+    //        nScore * 1 +
+    //        aScore * -300 +
+    //        rScore * -500;
+    console.log("Member: " + mateId + " \t" + 
+      sScore + ' ' + 
+      kScore + ' ' +
+      nScore + '\t' +
+      aScore + ' ' +
+      rScore
+      );
+  }
+
+  if (aScore || rScore) {
+    testing = false;
+    culprit = mateId;
+    shuffle(mateId);
+  }
 
 };
 
+var shuffle = function(mateId) {
+  var pos = groups.indexOf(mateId);
+  var removed = groups.splice(pos, 1)[0];
+  groups.splice(n-g-1, 0, removed);
+};
+
 // UTILITY TEST
-_(groups).each(function (team) {
-  console.log("\nTeam: ", team);
-  _(team).each(function(mate){
-    calculate(mate, team);
-  });
-});
+
+var culprit = -1, lastCulprit = -2;
+var rounds = 0;
+var testing = true;
+var teams = divide(groups.slice(), n/g);
+testGrouping(teams);
+
+while (!testing && rounds < 100 && culprit !== lastCulprit) {
+  testing = true;
+  teams = divide(groups.slice(), n/g);
+  lastCulprit = culprit;
+  testGrouping(teams);
+  rounds++;
+}
+
+var print = true;
+testing = true;
+testGrouping(teams);
+
 
 // var testee = members[15];
 // _(testee.preferences).each(function (idx){
@@ -236,6 +307,7 @@ _(groups).each(function (team) {
 // });
 
 // imported an array division function
+
 function divide(a, n) {
   var len = a.length,out = [], i = 0;
   while (i < len) {

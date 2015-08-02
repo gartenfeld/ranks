@@ -1,0 +1,63 @@
+Grouping Score: 138
+
+TEAM: 
+Member: 13  0 3 0  
+Member: 22  1 1 1  
+Member: 1   0 0 3  
+Member: 33  0 2 1  
+
+TEAM: 
+Member: 0   0 2 1  
+Member: 35  1 0 2  
+Member: 9   1 0 2  
+Member: 20  0 0 3  
+
+TEAM: 
+Member: 11  1 0 2  
+Member: 17  0 1 2  
+Member: 5   1 1 1  
+Member: 38  0 2 1  
+
+TEAM: 
+Member: 18  1 0 2  
+Member: 8   1 0 2  
+Member: 15  2 0 1  
+Member: 4   1 1 1  
+
+TEAM: 
+Member: 6   0 0 3  
+Member: 27  0 1 2  
+Member: 36  1 2 0  
+Member: 30  0 0 3  
+
+TEAM: 
+Member: 12  0 1 2  
+Member: 10  1 0 2  
+Member: 28  0 2 1  
+Member: 37  0 2 1  
+
+TEAM: 
+Member: 29  0 1 2  
+Member: 34  0 1 2  
+Member: 32  0 1 2  
+Member: 23  0 1 2  
+
+TEAM: 
+Member: 39  0 0 3  
+Member: 21  0 0 3  
+Member: 31  0 0 3  
+Member: 16  0 1 2  
+
+TEAM: 
+Member: 2   0 0 3  
+Member: 3   1 0 2  
+Member: 25  0 1 2  
+Member: 26  1 0 2  
+
+TEAM: 
+Member: 14  0 1 2  
+Member: 7   0 0 3  
+Member: 24  0 0 3  
+Member: 19  2 1 0 
+ 
+[Finished in 1.0s]

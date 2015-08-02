@@ -145,40 +145,24 @@ var wishlist = function(){
   });
 };
 
-var allocate = function() {
-  var assignee;
-  while (queue.length) {
-    assignee = queue.shift();
-    groups.push(assignee);
-    accompany(assignee);
-  }
+var rePool = function(){
+  var pool = members.slice();
+  pool = _(pool).map(function (member) {
+    return member.id;
+  });
+  // console.log(pool)
+  return pool;
 };
 
-var accompany = function(assigneeId) {
-  var assignee = members[assigneeId],
-      tuple = recruit(assignee.preferences);
-  if (tuple) {
-    var friendId = tuple[0],
-        inQueuePos = tuple[1];
-    // extract friend from the queue, and add friend to groups
-    groups.push(queue.splice(inQueuePos, 1)[0]);
-    if (groups.length / g !== 0) {
-      accompany(friendId);
-    }
+var randomly = function(pool){
+  var groups = [];
+  var pos;
+  while (pool.length) {
+    pos = draw(pool.length);
+    groups.push(pool.splice(pos, 1)[0]);
   }
-};
-
-var recruit = function(list) {
-  // go down the preference list of candidates
-  var friend, foundAt;
-  for (var i = 0; i < list.length; i++) {
-    // check if this candidate is still available
-    friend = list[i];
-    foundAt = queue.indexOf(friend);
-    if (foundAt !== -1) {
-      return [friend, foundAt];
-    }
-  }
+  // console.log(groups);
+  return groups;
 };
 
 init();
@@ -187,60 +171,44 @@ tally();
 retally();
 wishlist();
 
-// var scores = [];
-// _(members).each(function(p){
-//   scores.push(p.superscore);
-// });
-// console.log(scores);
+// UTILITY TEST
 
-var queue = members.slice();
-// queue.sort(function(a,b){ return b.superscore - a.superscore; });
-queue = _(queue).map(function (member) {
-  // return [member.id, member.score, member.superscore];
-  return member.id;
-});
-// console.log(queue);
-
-var randomAllocate = function(){
-  var pos;
-  while (queue.length) {
-    pos = draw(queue.length);
-    groups.push(queue.splice(pos, 1)[0]);
-  }
-};
-
-// var groups = [];
-// allocate();
-// randomAllocate();
-
-// console.log(groups);
-// _(groups).each(function(id) {
-//   console.log(id, members[id].superscore);
-// });
-
-var testGrouping = function(teams) {
-  _(teams).each(function(team){
-    if (testing) {
-      testTeam(team);
+var experiment = function(rounds){
+  var pool, groups;
+  var max = -5000, score, best;
+  for (var i = 0; i < rounds; i++) {
+    pool = rePool();
+    groups = randomly(pool);
+    score = calculateUtil(groups);
+    if (score > max) {
+      best = groups.slice();
+      max = score;
     }
-  });
+  }
+  return [max, best];
 };
 
-var testTeam = function(team) {
-  if (print) {
-    console.log("\nTeam: ", team);
-  }
+var calculateUtil = function(groups){
+  var teams = divide(groups.slice(), n/g);
+  var cohortUtil = 0;
+  _(teams).each(function (team){
+    cohortUtil += teamUtil(team);
+  });
+  return cohortUtil;
+};
+
+var teamUtil = function(team) {
+  var groupUtil = 0;
   _(team).each(function (mate){
-    if (testing) {
-      testMember(mate, team);
-    }
+    groupUtil += memberUtil(mate, team);
   });
+  return groupUtil;
 };
 
-var testMember = function(mateId, team) {
+var memberUtil = function(mateId, team) {
   var mate = members[mateId];
-  var sScore = 0, kScore = 0, nScore = 0, aScore = '', rScore = '';
-  var util;
+  var sScore = 0, kScore = 0, nScore = 0, aScore = 0, rScore = 0;
+
   _(mate.strong).each(function (target){
     if (team.indexOf(target) !== -1) { sScore += 1; }
   });
@@ -251,82 +219,33 @@ var testMember = function(mateId, team) {
     if (team.indexOf(target) !== -1) { nScore += 1; }
   });
   _(mate.avoid).each(function (target){
-    if (team.indexOf(target) !== -1) { aScore += '*'; }
+    if (team.indexOf(target) !== -1) { aScore += 1; }
   });
   _(mate.reject).each(function (target){
-    if (team.indexOf(target) !== -1) { rScore += 'x'; }
+    if (team.indexOf(target) !== -1) { rScore += 1; }
   });
 
-  if (print) {
-    console.log("Member: " + mateId + " \t" + 
-      sScore + ' ' + 
-      kScore + ' ' +
-      nScore + '\t' +
-      aScore + ' ' +
-      rScore
-      );
-  }
+  var mateUtil = 0;
+  mateUtil += sScore * 5;
+  mateUtil += kScore * 2;
+  mateUtil += nScore * 0;
+  mateUtil += aScore * -200;
+  mateUtil += rScore * -400;
 
-  if (aScore || rScore) {
-    testing = false;
-    culprit = mateId;
-    shuffle(mateId);
-  }
+  return mateUtil;
 
 };
 
-var shuffle = function(mateId) {
-  var pos = groups.indexOf(mateId);
-  var removed = groups.splice(pos, 1)[0];
-  groups.splice(n-g-1, 0, removed);
-};
-
-// UTILITY TEST
-
-var testUtility = function(rounds){
-  var max, score, best;
-  for (var i = 0; i < rounds; i++) {
-    groups = [];
-    randomAllocate();
-    score = calculateUtil(groups);
-    if (score > max) {
-      best = groups.slice();
-      max = score;
-    }
-  }
-  return best;
-};
+var bestGrouping = experiment(5000);
+console.log("Grouping Score: " + bestGrouping[0]);
+printUtility(bestGrouping[1]);
 
 
 
-// CONFLICT TEST
-
-// var culprit = -1, lastCulprit = -2;
-// var rounds = 0;
-// var testing = true;
-// var teams = divide(groups.slice(), n/g);
-// testGrouping(teams);
-
-// while (!testing && rounds < 100 && culprit !== lastCulprit) {
-//   testing = true;
-//   teams = divide(groups.slice(), n/g);
-//   lastCulprit = culprit;
-//   testGrouping(teams);
-//   rounds++;
-// }
-
-// var print = true;
-// testing = true;
-// testGrouping(teams);
 
 
-// var testee = members[15];
-// _(testee.preferences).each(function (idx){
-//   console.log(members[idx].superscore);
-// });
 
 // imported an array division function
-
 function divide(a, n) {
   var len = a.length,out = [], i = 0;
   while (i < len) {
@@ -335,4 +254,46 @@ function divide(a, n) {
       i += size;
   }
   return out;
+}
+
+
+
+function printUtility (grouping) {
+
+  var teams = divide(grouping.slice(), n/g);
+
+  _(teams).each(function (team){
+    console.log("\nTEAM: ");
+
+    _(team).each(function (mateId) {
+      var mate = members[mateId];
+      var sScore = 0, kScore = 0, nScore = 0, aScore = '', rScore = '';
+      _(mate.strong).each(function (target){
+        if (team.indexOf(target) !== -1) { sScore += 1; }
+      });
+      _(mate.known).each(function (target){
+        if (team.indexOf(target) !== -1) { kScore += 1; }
+      });
+      _(mate.neutral).each(function (target){
+        if (team.indexOf(target) !== -1) { nScore += 1; }
+      });
+      _(mate.avoid).each(function (target){
+        if (team.indexOf(target) !== -1) { aScore += '*'; }
+      });
+      _(mate.reject).each(function (target){
+        if (team.indexOf(target) !== -1) { rScore += 'x'; }
+      });
+
+      console.log("Member: " + mateId + " \t" + 
+        sScore + ' ' + 
+        kScore + ' ' +
+        nScore + '\t' +
+        aScore + ' ' +
+        rScore
+      );
+
+    });
+
+  });
+
 }

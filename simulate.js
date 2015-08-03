@@ -40,7 +40,7 @@ var cast = function(voter) {
   var ballot = _.range(n);
   // remove self from the ballot
   ballot.splice(voter.id, 1);
-  var idx, candicate;
+  var idx, candidate;
 
   // simulation: randomly select "strong interest"
   var s = draw(settings.sLimit, 2); // size and floor of category
